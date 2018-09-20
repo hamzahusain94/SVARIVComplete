@@ -1,4 +1,4 @@
-function [IRFs, bootsIRFs] = Gasydistboots(seed, NB, n, p, norm, scale, horizons, confidence, T, f, AL, Sigma, Gamma, V, WHatall,SVARinp, NWlags)
+function [IRFs, bootsIRFs] = Gasydistboots(seed, NB, n, p, norm, scale, horizons, confidence, T, f, AL, Sigma, Gamma, V, WHatall,SVARinp, NWlags)          
 
 %  -Provides inference for SVAR-IV based on samples from the asy. dist.
 %  -Syntax:
@@ -31,6 +31,12 @@ function [IRFs, bootsIRFs] = Gasydistboots(seed, NB, n, p, norm, scale, horizons
 
 
 %% 1) Create an RForm (if necessary)
+
+%AL = RForm.AL;
+%Sigma = RForm.Sigma;
+%Gamma = RForm.Gamma;
+%V = RForm.V; 
+%WHatall = RForm.WHatall;
 
 %check whether the inputs are correct
 Gasydistboots_Check(NB, n, p, norm, scale, horizons, confidence, T, f, NWlags, AL, Sigma, Gamma, V, WHatall)
@@ -112,7 +118,7 @@ gvar    = [mvnrnd(zeros(NB,dall),(WHatall)/T)',...
 Draws   = bsxfun(@plus,gvar,...
           [AL;vechSigma;Gamma(:)]);
 
-k       = size(Gamma,1)/n;      
+k       = size(Gamma,2); 
 
 %The vector "Draws" represents a vector of I draws
 %from a multivariate normal vector (of dimension dall) centered
@@ -158,9 +164,18 @@ for idraws = 1:ndraws
       %iii) Draws from Gamma
       
     Gamma = reshape(Draws(((n^2)*p)+(n*(n+1)/2)+1:end,idraws),...
-              [n,k]);             
+              [n,k]);    
+          
           
     [IRFs(:,:,idraws,:),~] = f(AL,Sigma,Gamma,horizons,scale,norm);
+    
+    %IRFs       = zeros(n, horizons+1, ndraws, 2);
+
+    
+    
+    %f     = @(AL,Sigma,Gamma,hori,x,nvar)...
+    %    IRFSVARIV_2inst_j(AL,Sigma,Gamma,horizons,scale,norm,@upperchol_id_minusj);
+
             
     clear AL vechSigma Gamma 
       

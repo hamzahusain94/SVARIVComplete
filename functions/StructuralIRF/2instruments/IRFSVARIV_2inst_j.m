@@ -20,23 +20,27 @@ function [IRFSVARIV,dIRFdmu] = IRFSVARIV_2inst_j(AL,Sigma,Gamma,hori,x,nvar,c)
 
 %% 1) Main definitions and IRFs
 
-n            = size(Sigma,1);
+n                = size(Sigma,1);
 
-j            = nvar;
+j                = nvar;
 
-p            = size(AL,2)/n;
+p                = size(AL,2)/n;
 
-[crest,der_c]= c(AL,Sigma,Gamma);
+[crest,der_c]    = c(AL,Sigma,Gamma);
 
-Bcircj       = (Gamma*[0,-1;1,0]*Gamma')*crest;
+Bcircj           = (Gamma*[0,-1;1,0]*Gamma')*crest;
 
-B1           = x*Bcircj./Bcircj(j,1);
+B1               = x*Bcircj./Bcircj(j,1);
 
-Cauxsim      = [eye(n),MARep(AL,p,hori)]; 
+Cauxsim          = [eye(n),MARep(AL,p,hori)]; 
       
-Csim         = reshape(Cauxsim,[n,n,hori+1]);
+Csim             = reshape(Cauxsim,[n,n,hori+1]);
 
-IRFSVARIV    = reshape(sum(bsxfun(@times,Csim,B1'),2),[n,hori+1]);
+Ccumsim          = cumsum(Csim,3);
+
+IRFSVARIV(:,:,1) = reshape(sum(bsxfun(@times,Csim,B1'),2),[n,hori+1]);
+
+IRFSVARIV(:,:,2) = reshape(sum(bsxfun(@times,Ccumsim,B1'),2),[n,hori+1]);
 
 if nargout > 1
 
