@@ -188,8 +188,6 @@ disp('-')
 
 disp('5) This section reports points estimators based on a "lower Cholesky" identification scheme.')
 
-addpath(strcat(main_d,'/functions/StructuralIRF'));
-
 addpath(strcat(main_d,'/functions/StructuralIRF/2instruments'));
 
 [InferenceMSW.IRFSVARIV, InferenceMSW.dIRFdmu] = IRFSVARIV_2inst_j(RForm.AL,RForm.Sigma,RForm.Gamma,...
@@ -230,23 +228,25 @@ seed   = seed.seed;
 
 NB     = 1000;
 
+NWlags = 0; 
+
 disp('-')
 
 disp('7) This section samples from the asy dist of the reduced-form parameters to conduct "standard" inference.')
 
 disp('Standard inference based on sampling from the asy. dist. takes only:')  
 
-addpath(strcat(main_d,'/functions/StructuralIRF'));
-
 f     = @(AL,Sigma,Gamma,hori,x,nvar)...
         IRFSVARIV_2inst_j(AL,Sigma,Gamma,hori,x,nvar,@lowerchol_id);
 
 tic;
 
+addpath(strcat(main_d,'/functions/Inference'));
+
 [InferenceMSW.IRFs,InferenceMSW.bootsIRFs] = ...
                   Gasydistboots(seed, NB, n, p, norm, scale, horizons, confidence, T,...
-                  f, RForm.AL(:),RForm.V*RForm.Sigma(:),RForm.Gamma(:),...
-                  RForm.WHatall,SVARinp, NWlags);              
+                  f, RForm.AL, RForm.Sigma, RForm.Gamma, RForm.V,...
+                  RForm.WHatall, SVARinp, NWlags);              
 
 toc;
 
@@ -296,7 +296,7 @@ for iplot = 1:6
     
     subplot(3,2,plots.order(1,iplot));
     
-    plot(0:1:horizons,InferenceMSW.IRFSVARIV(plots.index(1,iplot),:,end),'b'); hold on
+    plot(0:1:horizons,InferenceMSW.IRFSVARIV(plots.index(1,iplot),:,1),'b'); hold on
     
     %[~,~] = jbfill(0:1:hori,InferenceMSW.bootsIRFs(plots.index(1,iplot),:,2),...
         %InferenceMSW.bootsIRFs(plots.index(1,iplot),:,1),[204/255 204/255 204/255],...
@@ -304,11 +304,11 @@ for iplot = 1:6
     
     g1    =  plot(0:1:horizons,InferenceMSW.bootsIRFs(plots.index(1,iplot),:,2),':b'); hold on
     
-    dmub  =  InferenceMSW.IRFSVARIV(plots.index(1,iplot),:) + ...
-             (caux*InferenceMSW.dmethod(plots.index(1,iplot),:)); 
+    dmub  =  InferenceMSW.IRFSVARIV(plots.index(1,iplot),:,1) + ...
+             (caux*InferenceMSW.dmethod(plots.index(1,iplot),:,1)); 
     
-    lmub  =  InferenceMSW.IRFSVARIV(plots.index(1,iplot),:) - ...
-             (caux*InferenceMSW.dmethod(plots.index(1,iplot),:)); 
+    lmub  =  InferenceMSW.IRFSVARIV(plots.index(1,iplot),:,1) - ...
+             (caux*InferenceMSW.dmethod(plots.index(1,iplot),:,1)); 
     
     h1 = plot(0:1:horizons,dmub,'--b'); hold on
     
@@ -383,17 +383,15 @@ disp('11) This section samples from the asy dist of the reduced-form parameters 
 
 disp('Standard inference based on sampling from the asy. dist. takes only:')  
 
-addpath(strcat(main_d,'/functions/StructuralIRF'));
-
 f     = @(AL,Sigma,Gamma,hori,x,nvar)...
         IRFSVARIV_2inst_j(AL,Sigma,Gamma,hori,x,nvar,@lowerchol_id_minusj);
 
 tic;
 
 [InferenceMSW.IRFs2,InferenceMSW.bootsIRFs2] = ...
-                  Gasydistboots(seed, 1000, n, p, 2, scale, horizons, confidence, T,...
-                  RForm.AL(:),RForm.V*RForm.Sigma(:),RForm.Gamma(:),...
-                  RForm.WHatall,f);              
+                  Gasydistboots(seed, NB, n, p, 2, scale, horizons, confidence, T,...
+                  f, RForm.AL,RForm.Sigma, RForm.Gamma, RForm.V,...
+                  RForm.WHatall, SVARinp, NWlags);              
 
 toc;
 
@@ -411,7 +409,7 @@ for iplot = 1:6
     
     subplot(3,2,plots.order(1,iplot));
     
-    plot(0:1:horizons,InferenceMSW.IRFSVARIV2(plots.index(1,iplot),:,end),'b'); hold on
+    plot(0:1:horizons,InferenceMSW.IRFSVARIV2(plots.index(1,iplot),:,1),'b'); hold on
     
     %[~,~] = jbfill(0:1:hori,InferenceMSW.bootsIRFs(plots.index(1,iplot),:,2),...
         %InferenceMSW.bootsIRFs(plots.index(1,iplot),:,1),[204/255 204/255 204/255],...
@@ -419,11 +417,11 @@ for iplot = 1:6
     
     g1    =  plot(0:1:horizons,InferenceMSW.bootsIRFs2(plots.index(1,iplot),:,2),':b'); hold on
     
-    dmub  =  InferenceMSW.IRFSVARIV2(plots.index(1,iplot),:) + ...
-             (caux*InferenceMSW.dmethod2(plots.index(1,iplot),:)); 
+    dmub  =  InferenceMSW.IRFSVARIV2(plots.index(1,iplot),:,1) + ...
+             (caux*InferenceMSW.dmethod2(plots.index(1,iplot),:,1)); 
     
-    lmub  =  InferenceMSW.IRFSVARIV2(plots.index(1,iplot),:) - ...
-             (caux*InferenceMSW.dmethod2(plots.index(1,iplot),:)); 
+    lmub  =  InferenceMSW.IRFSVARIV2(plots.index(1,iplot),:,1) - ...
+             (caux*InferenceMSW.dmethod2(plots.index(1,iplot),:,1)); 
     
     h1 = plot(0:1:horizons,dmub,'--b'); hold on
     
@@ -469,25 +467,23 @@ disp('13) The final section saves the .mat files and figures in the Output folde
  
 %Check if the Output File exists, and if not create one.
  
-if exist('Output','dir')==0
-    
-    mkdir('Output')
+OutputExtraMat = strcat(main_d, '/OutputExtra/Mat');
+
+        if exist(OutputExtraMat,'dir')==0
+
+            mkdir(OutputExtraMat)
+
+        end
         
-end
+OutputExtraFigs = strcat(main_d, '/OutputExtra/Figs');
+
+        if exist(OutputExtraFigs,'dir')==0
+
+            mkdir(OutputExtraFigs)
+
+        end
  
-if exist('Output/Mat','dir')==0
-    
-    mkdir('Output/Mat')
-        
-end
- 
-if exist('Output/Figs','dir')==0
-    
-    mkdir('Output/Figs')
-        
-end
- 
-cd(strcat(main_d,'/Output/Mat'));
+cd(OutputExtraMat);
  
 output_label = strcat('_p=',num2str(p),'_Top1Bottom99_2inst_lower',...
                num2str(100*confidence));
@@ -497,7 +493,7 @@ save(strcat('IRF_SVAR',output_label,'.mat'),...
  
 figure(1)
  
-cd(strcat(main_d,'/Output/Figs'));
+cd(OutputExtraFigs);
  
 print(gcf,'-depsc2',strcat('IRF_SVAR_Top1',output_label,'.eps'));
  
