@@ -1,5 +1,5 @@
 function [IRFs, bootsIRFs] = Gasydistboots(seed, NB, n, p, norm, scale, horizons, confidence, T, f, AL, Sigma, Gamma, V, WHatall,SVARinp, NWlags)          
-
+   
 %  -Provides inference for SVAR-IV based on samples from the asy. dist.
 %  -Syntax:
 %    [IRFs, bootsIRFs] = Gasydistboots(seed, NB, n, p, norm, scale, horizons, confidence, T, f, AL, Sigma, Gamma, V, WHatall,SVARinp, NWlags)
@@ -166,8 +166,15 @@ for idraws = 1:ndraws
     Gamma = reshape(Draws(((n^2)*p)+(n*(n+1)/2)+1:end,idraws),...
               [n,k]);    
           
-          
-    [IRFs(:,:,idraws,:),~] = f(AL,Sigma,Gamma,horizons,scale,norm);
+    try
+        
+        [IRFs(:,:,idraws,:),~] = f(AL,Sigma,Gamma,horizons,scale,norm);
+        
+    catch
+        
+        [IRFs(:,:,idraws,:)] = f(AL,Sigma,Gamma,horizons,scale,norm);
+        
+    end
     
     %IRFs       = zeros(n, horizons+1, ndraws, 2);
 

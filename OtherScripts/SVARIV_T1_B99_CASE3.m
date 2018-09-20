@@ -189,6 +189,8 @@ seed   = seed.seed;
 
 NB     = 1000;
 
+NWlags = 0;
+
 disp('-')
 
 disp('5) This section samples from the asy dist of the reduced-form parameters to conduct "standard" inference.')
@@ -199,11 +201,13 @@ addpath(strcat(main_d,'/functions/Inference'));
 
 tic;
 
+addpath(strcat(main_d,'/functions/StructuralIRF2inst'));
+
 [InferenceMSW.IRFs,InferenceMSW.bootsIRFs] = ...
                   Gasydistboots(seed, NB, n, p, norm, scale, horizons, confidence, T,...
-                  RForm.AL(:),RForm.V*RForm.Sigma(:),RForm.Gamma(:),...
-                  RForm.WHatall,@IRFSVARIV_2inst);              
-
+                  @IRFSVARIV_2inst,RForm.AL,RForm.Sigma,RForm.Gamma,RForm.V, RForm.WHatall,...
+                  SVARinp, NWlags);     
+            
 toc;
   
 %% 6) Plot Results
@@ -252,10 +256,10 @@ for iplot = 1:6
     
     subplot(3,2,plots.order(1,iplot));
     
-    plot(0:1:horizons,InferenceMSW.IRFs(plots.index(1,iplot),:,end),'b'); hold on
+    plot(0:1:horizons,InferenceMSW.IRFs(plots.index(1,iplot),:,end,1),'b'); hold on
     
-    [~,~] = jbfill(0:1:horizons,InferenceMSW.bootsIRFs(plots.index(1,iplot),:,2),...
-        InferenceMSW.bootsIRFs(plots.index(1,iplot),:,1),[204/255 204/255 204/255],...
+    [~,~] = jbfill(0:1:horizons,InferenceMSW.bootsIRFs(plots.index(1,iplot),:,2,1),...
+        InferenceMSW.bootsIRFs(plots.index(1,iplot),:,1,1),[204/255 204/255 204/255],...
         [204/255 204/255 204/255],0,0.5); hold on
     
     h3 = plot([0 5],[0 0],'black'); hold off
@@ -276,7 +280,7 @@ for iplot = 1:6
      
     end
     
-    axis(plots.axis(iplot,:))
+    %axis(plots.axis(iplot,:))
     
 end
  
@@ -287,26 +291,24 @@ disp('-')
 disp('7) The final section saves the .mat files and figures in the Output folder')
  
 %Check if the Output File exists, and if not create one.
- 
-if exist('Output','dir')==0
-    
-    mkdir('Output')
+
+OutputExtraMat = strcat(main_d, '/OutputExtra/Mat');
+
+        if exist(OutputExtraMat,'dir')==0
+
+            mkdir(OutputExtraMat)
+
+        end
         
-end
+OutputExtraFigs = strcat(main_d, '/OutputExtra/Figs');
+
+        if exist(OutputExtraFigs,'dir')==0
+
+            mkdir(OutputExtraFigs)
+
+        end
  
-if exist('Output/Mat','dir')==0
-    
-    mkdir('Output/Mat')
-        
-end
- 
-if exist('Output/Figs','dir')==0
-    
-    mkdir('Output/Figs')
-        
-end
- 
-cd(strcat(main_d,'/Output/Mat'));
+cd(OutputExtraMat);
  
 output_label = strcat('_p=',num2str(p),'_Top1Bottom99_2inst',...
                num2str(100*confidence));
@@ -316,7 +318,7 @@ save(strcat('IRF_SVAR',output_label,'.mat'),...
  
 figure(1)
  
-cd(strcat(main_d,'/Output/Figs'));
+cd(OutputExtraFigs);
  
 print(gcf,'-depsc2',strcat('IRF_SVAR',output_label,'.eps'));
  
