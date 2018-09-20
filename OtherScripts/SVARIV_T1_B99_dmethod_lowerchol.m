@@ -188,8 +188,6 @@ disp('-')
 
 disp('5) This section reports points estimators based on a "lower Cholesky" identification scheme.')
 
-addpath(strcat(main_d,'/functions/StructuralIRF'));
-
 addpath(strcat(main_d,'/functions/StructuralIRF/2instruments'));
 
 [InferenceMSW.IRFSVARIV, InferenceMSW.dIRFdmu] = IRFSVARIV_2inst_j(RForm.AL,RForm.Sigma,RForm.Gamma,...
@@ -238,12 +236,12 @@ disp('7) This section samples from the asy dist of the reduced-form parameters t
 
 disp('Standard inference based on sampling from the asy. dist. takes only:')  
 
-addpath(strcat(main_d,'/functions/StructuralIRF'));
-
 f     = @(AL,Sigma,Gamma,hori,x,nvar)...
         IRFSVARIV_2inst_j(AL,Sigma,Gamma,hori,x,nvar,@lowerchol_id);
 
 tic;
+
+addpath(strcat(main_d,'/functions/Inference'));
 
 [InferenceMSW.IRFs,InferenceMSW.bootsIRFs] = ...
                   Gasydistboots(seed, NB, n, p, norm, scale, horizons, confidence, T,...
@@ -384,8 +382,6 @@ disp('-')
 disp('11) This section samples from the asy dist of the reduced-form parameters to conduct "standard" inference on the second shock.')
 
 disp('Standard inference based on sampling from the asy. dist. takes only:')  
-
-addpath(strcat(main_d,'/functions/StructuralIRF'));
 
 f     = @(AL,Sigma,Gamma,hori,x,nvar)...
         IRFSVARIV_2inst_j(AL,Sigma,Gamma,hori,x,nvar,@lowerchol_id_minusj);
