@@ -302,7 +302,7 @@ for iplot = 1:6
         %InferenceMSW.bootsIRFs(plots.index(1,iplot),:,1),[204/255 204/255 204/255],...
         %[204/255 204/255 204/255],0,0.5); hold on
     
-    g1    =  plot(0:1:horizons,InferenceMSW.bootsIRFs(plots.index(1,iplot),:,2),':b'); hold on
+    g1    =  plot(0:1:horizons,InferenceMSW.bootsIRFs(plots.index(1,iplot),:,2,1),':b'); hold on
     
     dmub  =  InferenceMSW.IRFSVARIV(plots.index(1,iplot),:,1) + ...
              (caux*InferenceMSW.dmethod(plots.index(1,iplot),:,1)); 
@@ -312,7 +312,7 @@ for iplot = 1:6
     
     h1 = plot(0:1:horizons,dmub,'--b'); hold on
     
-    g2    =  plot(0:1:horizons,InferenceMSW.bootsIRFs(plots.index(1,iplot),:,1),':b'); hold on
+    g2    =  plot(0:1:horizons,InferenceMSW.bootsIRFs(plots.index(1,iplot),:,1,1),':b'); hold on
     
     h2 = plot(0:1:horizons,lmub,'--b'); hold on
     

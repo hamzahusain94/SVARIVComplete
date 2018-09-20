@@ -201,7 +201,7 @@ addpath(strcat(main_d,'/functions/Inference'));
 
 tic;
 
-addpath(strcat(main_d,'/functions/StructuralIRF2inst'));
+addpath(strcat(main_d,'/functions/StructuralIRF/2instruments'));
 
 [InferenceMSW.IRFs,InferenceMSW.bootsIRFs] = ...
                   Gasydistboots(seed, NB, n, p, norm, scale, horizons, confidence, T,...
@@ -280,7 +280,7 @@ for iplot = 1:6
      
     end
     
-    %axis(plots.axis(iplot,:))
+    axis(plots.axis(iplot,:))
     
 end
  

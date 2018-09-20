@@ -342,7 +342,7 @@ for iplot = 1:6
      
     end
     
-    %axis(plots.axis(iplot,:))
+    axis(plots.axis(iplot,:))
     
 end
 
@@ -457,7 +457,7 @@ for iplot = 1:6
      
     end
     
-    %axis(plots.axis(iplot,:))
+    axis(plots.axis(iplot,:))
     
 end
 
